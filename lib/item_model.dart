@@ -34,8 +34,10 @@ class ItemModel extends ChangeNotifier {
   void changeItem(int id, String text) {
     items.map((item) => item.id == id ? item.change() : item,).toList();
     if (text == "-") {
+      // テキストフィールドの1番目の文字に"-"が入った場合、取り消す
       items.map((item) => item.id == id ? item.controller.text = "" : item,).toList();
     } else if (text.length > 1) {
+      // 四則記号が2連続で入力された場合、取り消す
       String laststr = text.substring(text.length -1);
       String laststr2 = text.substring(text.length -2, text.length -1);
       if (laststr == "-" && cSymbols.contains(laststr2)) {
@@ -49,6 +51,7 @@ class ItemModel extends ChangeNotifier {
   void removeItem(int id) {
     final removeItem = items.firstWhere((element) => element.id == id);
     items.removeWhere((element) => element.id == id);
+    // 時間を遅らせないとエラーになるため
     Future.delayed(const Duration(seconds: 1)).then((value) => removeItem.dispose());
     notifyListeners();
   }
@@ -56,7 +59,9 @@ class ItemModel extends ChangeNotifier {
   // 四則記号のキーボードアクションをテキストフィールドに反映させる
   void addSymbol(int id, String symbol) {
     final item = items.firstWhere((element) => element.id == id);
+    // テキストフィールドの1番目の文字に四則演算を追加しない
     if (item.controller.text != "") {
+      // 四則演算が2連続で追加される場合、追加しない
       var laststr = item.controller.text.substring(item.controller.text.length - 1);
       if (!cSymbols.contains(laststr)) {
         item.controller.text += symbol;
